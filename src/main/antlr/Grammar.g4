@@ -3,10 +3,6 @@ grammar Grammar;
 NUM     : '-'?([0-9]+)|([0-9]*'.'[0-9]+) ;  // -?((INT) | (FLOAT))
 VAR     : [_a-zA-Z]+[_a-zA-Z0-9]* ;     // (_alphabet)+(_alphanumeric)*
 
-// SIN : 's' ;
-// COS : 'c' ;
-// LOG : 'l' ;
-// EXP : 'e' ;
 POW : '^' ;
 MULT: '*' ;
 DIV : '/' ;
@@ -25,9 +21,11 @@ prog: stat* ;
 
 stat: expr NL?      # PrintExpr
     | varDef NL?    # Assign
-    // | LCOM RCOM     # Comment
+    | comment NL?   # Comm
     | NL            # NewLine
     ;
+
+comment : '/*' (.)*? '*/' ;
 
 varDef  : VAR EQ expr ;
 
@@ -55,8 +53,3 @@ expr
     | VAR                   # Variable
     | LPAR expr RPAR        # Parenthesis
     ;
-
-    // | SIN '(' expr ')'      # Sine
-    // | COS '(' expr ')'      # Cosine
-    // | LOG '(' expr ')'      # Logarithm
-    // | EXP '(' expr ')'      # Exponential
