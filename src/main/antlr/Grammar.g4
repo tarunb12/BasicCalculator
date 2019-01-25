@@ -7,7 +7,6 @@ VAR     : [_a-zA-Z]+[_a-zA-Z0-9]* ;     // (_alphabet)+(_alphanumeric)*
 // COS : 'c' ;
 // LOG : 'l' ;
 // EXP : 'e' ;
-// SQRT: 'sqrt' ;
 POW : '^' ;
 MULT: '*' ;
 DIV : '/' ;
@@ -32,8 +31,11 @@ stat: expr NL?      # PrintExpr
 
 varDef  : VAR EQ expr ;
 
+sqrtExpr: 'sqrt' LPAR expr RPAR ;
+
 expr
     : expr POW expr         # Power
+    | sqrtExpr              # SquareRoot
     | expr MULT expr        # Multiply
     | expr DIV expr         # Divide
     | expr ADD expr         # Add
@@ -47,4 +49,3 @@ expr
     // | COS '(' expr ')'      # Cosine
     // | LOG '(' expr ')'      # Logarithm
     // | EXP '(' expr ')'      # Exponential
-    // | SQRT '(' expr ')'     # SquareRoot

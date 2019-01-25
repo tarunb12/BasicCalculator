@@ -25,7 +25,7 @@ public class Calculate {
 
         CalculateEvalVisitor eval = new CalculateEvalVisitor();
         eval.visit(tree);
-        
+
         // System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
         // System.out.println("File Text:\n" + tree.getText());
     }
