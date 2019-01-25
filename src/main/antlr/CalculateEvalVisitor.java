@@ -37,6 +37,14 @@ public class CalculateEvalVisitor extends GrammarBaseVisitor<Double> {
         return 0.0;                          // return dummy value
     }
 
+    // exp POW exp
+    @Override
+    public Double visitPower(GrammarParser.PowerContext ctx) {
+        double left = visit(ctx.expr(0));
+        double right = visit(ctx.expr(1));
+        return Math.pow(left, right);
+    }
+
     // expr MULT expr
     @Override
     public Double visitMultiply(GrammarParser.MultiplyContext ctx) {

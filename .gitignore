@@ -6,5 +6,6 @@
 Grammar*.java
 !GrammarJoyRide.java
 
+/bin
 /.vscode
 /src/main/.antlr/
