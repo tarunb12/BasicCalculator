@@ -74,10 +74,38 @@ public class CalculateEvalVisitor extends GrammarBaseVisitor<Double> {
         return Math.sin(value);
     }
 
+    // c(expr)
     @Override
     public Double visitCosFunc(GrammarParser.CosFuncContext ctx) {
         double value = visit(ctx.expr());
         return Math.cos(value);
+    }
+
+    // (expr && expr)
+    @Override
+    public Double visitAnd(GrammarParser.AndContext ctx) {
+        double left = visit(ctx.expr(0));
+        double right = visit(ctx.expr(1));
+        if (left != 0.0 && right != 0) return 1.0;
+        return 0.0;
+    }
+
+    // (expr || expr)
+    @Override
+    public Double visitOr(GrammarParser.OrContext ctx) {
+        double left = visit(ctx.expr(0));
+        double right = visit(ctx.expr(1));
+        if (left != 0.0 || right != 0) return 1.0;
+        return 0.0;
+    }
+
+
+    // !expr
+    @Override
+    public Double visitNot(GrammarParser.NotContext ctx) {
+        double value = visit(ctx.expr());
+        if (value != 0.0) return 1.0;
+        return 0.0;
     }
 
     // expr MULT expr [expr * expr]

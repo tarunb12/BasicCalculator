@@ -12,9 +12,13 @@ LPAR: '(' ;
 RPAR: ')' ;
 EQ  : '=' ;
 
+NOT : '!' ;
+AND : '&&' ;
+OR  : '||' ;
+
 LCOM: '/*' ;
 RCOM: '*/' ;
-NL  : '\n';
+NL  : '\r'? '\n';
 WS  : [ \t]+ -> skip;
 
 prog: stat* ;
@@ -25,9 +29,14 @@ stat: expr NL?      # PrintExpr
     | NL            # NewLine
     ;
 
+varDef  : VAR EQ expr ;
+
 comment : '/*' (.)*? '*/' ;
 
-varDef  : VAR EQ expr ;
+LBoolOp : NOT ;
+LRBoolOp: AND
+        | OR
+        ;
 
 sinFunc : 's' LPAR expr RPAR ;
 cosFunc : 'c' LPAR expr RPAR ;
@@ -43,13 +52,16 @@ function: expFunc
         ;
 
 expr
-    : expr POW expr         # Power
-    | function              # Func
-    | expr MULT expr        # Multiply
-    | expr DIV expr         # Divide
-    | expr ADD expr         # Add
-    | expr SUBT expr        # Subtract
-    | NUM                   # Number
-    | VAR                   # Variable
-    | LPAR expr RPAR        # Parenthesis
+    : expr POW expr             # Power
+    | function                  # Func
+    | expr AND expr             # And
+    | expr OR expr              # Or
+    | NOT expr                  # Not
+    | expr MULT expr            # Multiply
+    | expr DIV expr             # Divide
+    | expr ADD expr             # Add
+    | expr SUBT expr            # Subtract
+    | NUM                       # Number
+    | VAR                       # Variable
+    | LPAR expr RPAR            # Parenthesis
     ;
