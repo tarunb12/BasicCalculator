@@ -31,11 +31,22 @@ stat: expr NL?      # PrintExpr
 
 varDef  : VAR EQ expr ;
 
-sqrtExpr: 'sqrt' LPAR expr RPAR ;
+sinFunc : 's' LPAR expr RPAR ;
+cosFunc : 'c' LPAR expr RPAR ;
+logFunc : 'l' LPAR expr RPAR ;
+expFunc : 'e' LPAR expr RPAR ;
+sqrtFunc: 'sqrt' LPAR expr RPAR ;
+
+function: expFunc
+        | logFunc
+        | sqrtFunc
+        | sinFunc
+        | cosFunc
+        ;
 
 expr
     : expr POW expr         # Power
-    | sqrtExpr              # SquareRoot
+    | function              # Func
     | expr MULT expr        # Multiply
     | expr DIV expr         # Divide
     | expr ADD expr         # Add
