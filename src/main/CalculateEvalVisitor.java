@@ -11,15 +11,16 @@ public class CalculateEvalVisitor extends GrammarBaseVisitor<Double> {
         String var = ctx.varDef().VAR().getText();
         double value = visit(ctx.varDef().expr());
         varDefs.put(var, value);
+        System.out.println(value);
         return value;
     }
 
     // expr NL
     @Override
     public Double visitPrintExpr(GrammarParser.PrintExprContext ctx) {
-        Double value = visit(ctx.expr()); // evaluate the expr child
-        System.out.println(value);         // print the result
-        return 0.0;                          // return dummy value
+        Double value = visit(ctx.expr());   // evaluate the expr child
+        System.out.println(value);          // print the result
+        return 0.0;                         // return dummy value
     }
 
     // VAR
