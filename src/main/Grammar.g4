@@ -38,11 +38,12 @@ RCOM: '*/' ;
 NL  : '\r'? '\n' ;
 WS  : [ \t]+ -> skip ;
 
-prog: stat ( NL stat )* NL?;
+prog: stat ( NL stat )* ;
 
 stat: expr                      { System.out.println($expr.result); }
     | varDef
     | comment
+    | NL
     ;
 
 varDef
@@ -51,6 +52,12 @@ varDef
 
 comment
     : '/*' (.)*? '*/'
+    ;
+
+num 
+    : INT
+    | DOUBLE
+    | SUBT num
     ;
 
 expr returns [double result]
@@ -67,13 +74,8 @@ expr returns [double result]
     | left=expr DIV right=expr	{ $result = $left.result / $right.result; }
     | left=expr ADD right=expr	{ $result = $left.result + $right.result; }
     | left=expr SUBT right=expr	{ $result = $left.result - $right.result; }
+    | SUBT expr                 { $result = -1 * $expr.result; }
 	| num				        { $result = Double.parseDouble($num.text); }
-    | SUBT num                  { $result = -1 * Double.parseDouble($num.text); }
     | var=VAR					{ $result = (varDefs.containsKey($var.text) ? varDefs.get($var.text) : 0.0); }
 	| LPAR expr RPAR            { $result = $expr.result; }
-    ;
-
-num 
-    : INT
-    | DOUBLE
     ;
