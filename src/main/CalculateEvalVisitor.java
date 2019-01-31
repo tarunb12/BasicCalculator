@@ -1,5 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.NumberFormatException;
 
 public class CalculateEvalVisitor extends GrammarBaseVisitor<Double> {
     // "memory" for the calculator, variable/value pairs go here

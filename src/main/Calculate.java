@@ -30,3 +30,136 @@ public class Calculate {
         // System.out.println("File Text:\n" + tree.getText());
     }
 }
+
+/*
+double prevResult = 0;
+
+	public double toDouble(String num) {
+		return Double.parseDouble(num);
+	}
+
+	public void assign(String var, String exp) {
+		double value = prevResult;
+		varDefs.put(var, value);
+		System.out.println(value);
+	}
+
+	public void printVar(String var) {
+		if(varDefs.containsKey(var)) {
+			System.out.println(varDefs.get(var));
+		}
+	}
+
+	public void printNum(String num) {
+		double value = toDouble(num);
+		System.out.println(value);
+	}
+
+	public void printExpr(String exp) {
+		try {
+			double expr = toDouble(exp);
+			System.out.println(expr);
+		}
+		catch(NumberFormatException e) {
+			System.out.print("");
+		}
+	}
+
+  	public void power(String exp1, String exp2) {
+		double left = toDouble(exp1);
+		double right = toDouble(exp2);
+		double result = Math.pow(left, right);
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void sin(String exp) {
+		double value = toDouble(exp);
+		double result = Math.sin(value);
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void cos(String exp) {
+		double value = toDouble(exp);
+		double result = Math.cos(value);
+		System.out.println(result);
+		prevResult = result;		
+	}
+
+	public void log(String exp) {
+		double value = toDouble(exp);
+		double result = Math.log10(value);
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void exp(String exp) {
+		double value = toDouble(exp);
+		double result = Math.exp(value);
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void sqrt(String exp) {
+		double value = toDouble(exp);
+		double result = Math.pow(value, 0.5);
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void and(String exp1, String exp2) {
+		double left = toDouble(exp1);
+		double right = toDouble(exp2);
+		double result = left != 0.0 && right != 0 ? 1.0 : 0.0;
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void or(String exp1, String exp2) {
+		double left = toDouble(exp1);
+		double right = toDouble(exp2);
+		double result = left != 0.0 || right != 0 ? 1.0 : 0.0;
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void not(String exp) {
+		double value = toDouble(exp);
+		double result = value != 0.0 ? 1.0 : 0.0;
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void mult(String exp1, String exp2) {
+		double left = toDouble(exp1);
+		double right = toDouble(exp2);
+		double result = left * right;
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void div(String exp1, String exp2) {
+		double left = toDouble(exp1);
+		double right = toDouble(exp2);
+		double result = left / right;
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void add(String exp1, String exp2) {
+		double left = toDouble(exp1);
+		double right = toDouble(exp2);
+		double result = left + right;
+		System.out.println(result);
+		prevResult = result;
+	}
+
+	public void subt(String exp1, String exp2) {
+		double left = toDouble(exp1);
+		double right = toDouble(exp2);
+		double result = left - right;
+		System.out.println(result);
+		prevResult = result;
+	}
+*/

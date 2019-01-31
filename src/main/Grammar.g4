@@ -1,4 +1,4 @@
-grammar Grammar;
+grammar Grammar ;
 
 @header {
 	import java.util.HashMap;
@@ -7,103 +7,12 @@ grammar Grammar;
 
 @members {
     Map<String, Double> varDefs = new HashMap<String, Double>();
-
-	public double toDouble(String num) {
-		return Double.parseDouble(num);
-	}
-
-	public void assign(String var, String exp) {
-		System.out.println(exp);
-		double value = toDouble(exp);
-		varDefs.put(var, value);
-		System.out.println(value);
-	}
-
-	public void printVar(String var) {
-		if(varDefs.containsKey(var)) {
-			System.out.println(varDefs.get(var));
-		}
-	}
-
-	public void printExpr(String exp) {
-		System.out.println(exp);
-	}
-
-  	public void power(String exp1, String exp2) {
-		double left = toDouble(exp1);
-		double right = toDouble(exp2);
-		System.out.println(Math.pow(left, right));
-	}
-
-	public void sin(String exp) {
-		double value = toDouble(exp);
-		System.out.println(Math.sin(value));
-	}
-
-	public void cos(String exp) {
-		double value = toDouble(exp);
-		System.out.println(Math.cos(value));
-	}
-
-	public void log(String exp) {
-		double value = toDouble(exp);
-		System.out.println(Math.log10(value));
-	}
-
-	public void exp(String exp) {
-		double value = toDouble(exp);
-		System.out.println(Math.exp(value));
-	}
-
-	public void sqrt(String exp) {
-		double value = toDouble(exp);
-		System.out.println(Math.pow(value, 0.5));
-	}
-
-	public void and(String exp1, String exp2) {
-		double left = toDouble(exp1);
-		double right = toDouble(exp2);
-		System.out.println(left != 0.0 && right != 0 ? 1.0 : 0.0);
-	}
-
-	public void or(String exp1, String exp2) {
-		double left = toDouble(exp1);
-		double right = toDouble(exp2);
-		System.out.println(left != 0.0 || right != 0 ? 1.0 : 0.0);
-	}
-
-	public void not(String exp) {
-		double value = toDouble(exp);
-		System.out.println(value != 0.0 ? 1.0 : 0.0);
-	}
-
-	public void mult(String exp1, String exp2) {
-		double left = toDouble(exp1);
-		double right = toDouble(exp2);
-		System.out.println(left * right);
-	}
-
-	public void div(String exp1, String exp2) {
-		double left = toDouble(exp1);
-		double right = toDouble(exp2);
-		System.out.println(left / right);
-	}
-
-	public void add(String exp1, String exp2) {
-		double left = toDouble(exp1);
-		double right = toDouble(exp2);
-		System.out.println(left + right);
-	}
-
-	public void subt(String exp1, String exp2) {
-		double left = toDouble(exp1);
-		double right = toDouble(exp2);
-		System.out.println(left - right);
-	}
 }
 
-NUM     : '-'?([0-9]+)|([0-9]*'.'[0-9]+) ;  // -?((INT) | (FLOAT))
-VAR     : [_a-zA-Z]+[_a-zA-Z0-9]* ;     // (_alphabet)+(_alphanumeric)*
+INT     : [0-9]+ ;
+DOUBLE  : [0-9]*'.'[0-9]+;
+
+VAR     : [_a-zA-Z]+[_a-zA-Z0-9]* ;
 
 POW : '^' ;
 MULT: '*' ;
@@ -114,51 +23,57 @@ LPAR: '(' ;
 RPAR: ')' ;
 EQ  : '=' ;
 
+exp : 'e' ;
+log : 'l' ;
+sqrt: 'sqrt' ;
+sin : 's' ;
+cos : 'c' ;
+
 NOT : '!' ;
 AND : '&&' ;
 OR  : '||' ;
 
 LCOM: '/*' ;
 RCOM: '*/' ;
-NL  : '\r'? '\n';
-WS  : [ \t]+ -> skip;
+NL  : '\r'? '\n' ;
+WS  : [ \t]+ -> skip ;
 
-prog: stat* ;
+prog: stat ( NL stat )* NL?;
 
-stat: exp=expr NL?		{ this.printExpr($expr.text); }
-    | varDef NL?
-    | comment NL?   //# Comm
-    | NL            //# NewLine
+stat: expr                      { System.out.println($expr.result); }
+    | varDef
+    | comment
     ;
 
-varDef  : var=VAR EQ exp=expr 			{ this.assign($var.text, $exp.text); } ;
+varDef
+	: var=VAR EQ expr           { varDefs.put($var.text, $expr.result); }
+	;
 
-comment : '/*' (.)*? '*/' ;
+comment
+    : '/*' (.)*? '*/'
+    ;
 
-sinFunc : 's' LPAR exp=expr RPAR 		{ this.sin($exp.text); } ;
-cosFunc : 'c' LPAR exp=expr RPAR 		{ this.cos($exp.text); } ;
-logFunc : 'l' LPAR exp=expr RPAR 		{ this.log($exp.text); } ;
-expFunc : 'e' LPAR exp=expr RPAR 		{ this.exp($exp.text); } ;
-sqrtFunc: 'sqrt' LPAR exp=expr RPAR 	{ this.sqrt($exp.text); } ;
+expr returns [double result]
+    : exp LPAR expr RPAR        { $result = Math.exp($expr.result); }
+    | log LPAR expr RPAR        { $result = Math.log10($expr.result); }
+    | sqrt LPAR expr RPAR       { $result = Math.sqrt($expr.result); }
+    | sin LPAR expr RPAR        { $result = Math.sin($expr.result); }
+    | cos LPAR expr RPAR        { $result = Math.cos($expr.result); }
+    | left=expr POW right=expr	{ $result = Math.pow($left.result, $right.result); }
+    | left=expr AND right=expr	{ $result = $left.result != 0.0 && $right.result != 0 ? 1.0 : 0.0; }
+    | left=expr OR right=expr	{ $result = $left.result != 0.0 || $right.result != 0 ? 1.0 : 0.0; }
+    | NOT expr					{ $result = $expr.result != 0.0 ? 1.0 : 0.0; }
+    | left=expr MULT right=expr	{ $result = $left.result * $right.result; }
+    | left=expr DIV right=expr	{ $result = $left.result / $right.result; }
+    | left=expr ADD right=expr	{ $result = $left.result + $right.result; }
+    | left=expr SUBT right=expr	{ $result = $left.result - $right.result; }
+	| num				        { $result = Double.parseDouble($num.text); }
+    | SUBT num                  { $result = -1 * Double.parseDouble($num.text); }
+    | var=VAR					{ $result = (varDefs.containsKey($var.text) ? varDefs.get($var.text) : 0.0); }
+	| LPAR expr RPAR            { $result = $expr.result; }
+    ;
 
-function: expFunc
-        | logFunc
-        | sqrtFunc
-        | sinFunc
-        | cosFunc
-        ;
-
-expr
-    : exp1=expr POW exp2=expr			{ this.power($exp1.text, $exp2.text); }
-    | function                  
-    | exp1=expr AND exp2=expr			{ this.and($exp1.text, $exp2.text); }
-    | exp1=expr OR exp2=expr			{ this.or($exp1.text, $exp2.text); }
-    | NOT exp=expr              		{ this.not($exp.text); }
-    | exp1=expr MULT exp2=expr  		{ this.mult($exp1.text, $exp2.text); }
-    | exp1=expr DIV exp2=expr  			{ this.div($exp1.text, $exp2.text); }
-    | exp1=expr ADD exp2=expr  			{ this.add($exp1.text, $exp2.text); }
-    | exp1=expr SUBT exp2=expr 			{ this.subt($exp1.text, $exp2.text); }
-    | LPAR exp=expr RPAR            
-	| NUM                     	  
-    | var=VAR                     	  	{ this.printVar($var.text); }
+num 
+    : INT
+    | DOUBLE
     ;
