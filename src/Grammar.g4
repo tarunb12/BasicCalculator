@@ -7,7 +7,9 @@ grammar Grammar ;
 
 @members {
     Map<String, Double> varDefs = new HashMap<String, Double>();
+    boolean readMode = false;
 }
+
 
 INT     : [0-9]+ ;
 DOUBLE  : [0-9]*'.'[0-9]+;
@@ -22,7 +24,7 @@ SUBT: '-' ;
 LPAR: '(' ;
 RPAR: ')' ;
 EQ  : '=' ;
-
+read: 'read';
 exp : 'e' ;
 log : 'l' ;
 sqrt: 'sqrt' ;
@@ -38,12 +40,11 @@ RCOM: '*/' ;
 NL  : '\r'? '\n' ;
 WS  : [ \t]+ -> skip ;
 
-prog: stat ( NL stat )* ;
+prog: NL*? stat ( NL stat )* NL*? ;
 
-stat: expr                      { System.out.println($expr.result); }
+stat: expr                      { if (!readMode) { System.out.println($expr.result); } else { varDefs.put("read()", $expr.result); readMode = false; } }
     | varDef
     | comment
-    | NL
     ;
 
 varDef
@@ -57,7 +58,6 @@ comment
 num 
     : INT
     | DOUBLE
-    | SUBT num
     ;
 
 expr returns [double result]
@@ -76,6 +76,8 @@ expr returns [double result]
     | left=expr SUBT right=expr	{ $result = $left.result - $right.result; }
     | SUBT expr                 { $result = -1 * $expr.result; }
 	| num				        { $result = Double.parseDouble($num.text); }
-    | var=VAR					{ $result = (varDefs.containsKey($var.text) ? varDefs.get($var.text) : 0.0); }
+    | var=VAR					{ $result = (varDefs.containsKey($var.text) ? varDefs.get($var.text) : 0); }
+    | read LPAR RPAR            { $result = 0.0; readMode = true; varDefs.put("read()", 0.0); }
 	| LPAR expr RPAR            { $result = $expr.result; }
     ;
+
