@@ -63,10 +63,10 @@ num
 expr returns [double result]
     : exp LPAR expr RPAR        { $result = Math.exp($expr.result); }
     | log LPAR expr RPAR        { $result = Math.log10($expr.result); }
-    | sqrt LPAR expr RPAR       { $result = Math.sqrt($expr.result); }
     | sin LPAR expr RPAR        { $result = Math.sin($expr.result); }
     | cos LPAR expr RPAR        { $result = Math.cos($expr.result); }
     | left=expr POW right=expr	{ $result = Math.pow($left.result, $right.result); }
+    | sqrt LPAR expr RPAR       { $result = Math.sqrt($expr.result); }
     | NOT expr					{ $result = $expr.result == 0.0 ? 1.0 : 0.0; }
     | left=expr AND right=expr	{ $result = $left.result != 0.0 && $right.result != 0 ? 1.0 : 0.0; }
     | left=expr OR right=expr	{ $result = $left.result != 0.0 || $right.result != 0 ? 1.0 : 0.0; }

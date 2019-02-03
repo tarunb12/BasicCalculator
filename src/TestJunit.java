@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 public class TestJunit {
@@ -52,14 +53,27 @@ public class TestJunit {
          String testExpRes = outContent.toString().replace("\n", "").replace("\r", "");
          resetOutStream();
          Assert.assertEquals(testRes, testExpRes);
-         System.out.println(LTAB + ANSI_GREEN + "\u2713 " + ANSI_RESET + ANSI_LOW + testExp.trim() + "=" + testRes + ANSI_RESET);
+         System.out.println(LTAB + ANSI_GREEN + "\u2713 " + ANSI_RESET + ANSI_LOW + testExp.trim().replace("\n", "; ") + "=" + testRes + ANSI_RESET);
       }
       catch (AssertionError e) {
-         System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + testExp.trim() + "=" + testRes + ANSI_RESET);
+         System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + testExp.trim().replace("\n", "; ") + "=" + testRes + ANSI_RESET);
       }
       catch (Exception e) {
          System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + "Parser failed on the input " + testExp);
       }
+   }
+
+   @Test
+   public void testMathOps() {
+      System.out.println(STAB + "Mathematical Tests:");
+
+      tests.setAddSubMultDivPowTests();
+      Map<String, String> testResults = tests.mathTests;
+
+      for (Map.Entry<String, String> test : testResults.entrySet()) {
+         antlrTest(test.getKey(), test.getValue());
+      }
+      System.out.println("");
    }
 
    @Test
@@ -89,14 +103,18 @@ public class TestJunit {
    }
 
    @Test
-   public void testMathOps() {
-      System.out.println(STAB + "Mathematical Tests:");
+   public void testVarDefs() {
+      System.out.println(STAB + "Variable Tests:");
 
-      tests.setAddSubMultDivPowTests();
-      Map<String, String> testResults = tests.mathTests;
+      tests.setVarTests();
+      Map<ArrayList<String>, String> testResults = tests.varTests;
 
-      for (Map.Entry<String, String> test : testResults.entrySet()) {
-         antlrTest(test.getKey(), test.getValue());
+      for (Map.Entry<ArrayList<String>, String> test : testResults.entrySet()) {
+         String command = "";
+         for (String cmd : test.getKey()) {
+            command += cmd + "\n";
+         }
+         antlrTest(command, test.getValue());
       }
       System.out.println("");
    }
@@ -105,7 +123,7 @@ public class TestJunit {
       public Map<String, String> mathTests;
       public Map<String, String> booleanTests;
       public Map<String, String> functionTests;
-      public Map<String, String> varTests;
+      public Map<ArrayList<String>, String> varTests;
 
       public void setAddSubMultDivPowTests() {
          mathTests = new LinkedHashMap<String, String>();
@@ -123,20 +141,40 @@ public class TestJunit {
          BinaryOperation or = (a, b) -> a != 0.0 || b != 0.0 ? 1.0 : 0.0;
          UnaryOperation not = a -> a == 0 ? 1.0 : 0.0;
          booleanTests = new LinkedHashMap<String, String>();
-         booleanTests.put("2&&4", Double.toString(and.compute(2, 4)));
-         booleanTests.put("2||4", Double.toString(or.compute(2, 4)));
-         booleanTests.put("!2||!4", Double.toString(or.compute(not.compute(2), not.compute(4))));
-         booleanTests.put("!3&&4.24||2&&!0", Double.toString(or.compute(and.compute(not.compute(3), 4.24), and.compute(2, not.compute(0)))));
+         booleanTests.put("2&&4", Double.toString(and.compute(2,4)));
+         booleanTests.put("2||4", Double.toString(or.compute(2,4)));
+         booleanTests.put("!2||!4", Double.toString(or.compute(not.compute(2),not.compute(4))));
+         booleanTests.put("!3&&4.24||2&&!0", Double.toString(or.compute(and.compute(not.compute(3),4.24),and.compute(2,not.compute(0)))));
+         booleanTests.put("!!2&&(4-2^2+2^0)", Double.toString(and.compute(not.compute(not.compute(2)),4-Math.pow(2,2)+Math.pow(2,0))));
       }
 
       public void setFunctionTests() {
          functionTests = new LinkedHashMap<String, String>();
-         functionTests.put("(s(3.141592653589))^2+(c(3.141592653589))^2", Double.toString(Math.pow(Math.sin(3.141592653589), 2) + Math.pow(Math.cos(3.141592653589), 2)));
+         functionTests.put("(s(3.141592653589))^2+(c(3.141592653589))^2", Double.toString(Math.pow(Math.sin(3.141592653589),2)+Math.pow(Math.cos(3.141592653589),2)));
          functionTests.put("s(3.141592653589/2)/c(3.141592653589/2)", Double.toString(Math.sin(3.141592653589/2)/Math.cos(3.141592653589/2)));
+         functionTests.put("l(e(2))/l(e(1))", Double.toString(Math.log10(Math.exp(2))/Math.log10(Math.exp(1))));
+         functionTests.put("sqrt(2)^(sqrt(2)^(sqrt(2)))", Double.toString(Math.pow(Math.sqrt(2),Math.pow(Math.sqrt(2),Math.sqrt(2)))));
       }
 
       public void setVarTests() {
-         
+         varTests = new LinkedHashMap<ArrayList<String>, String>();
+         String[][] commands = {
+            {"num=5+11*2", "num"},
+            {"v=4*l(2)", "v=10^v", "v"},
+            {"a=5*e(-2)", "b=s(a)+c(a)+sqrt(a)", "a+2*b/7"}
+         };
+         String[] results = {
+            Double.toString(5+11*2),
+            Double.toString(Math.pow(10,4*Math.log10(2))),
+            Double.toString(5*Math.exp(-2)+2*(Math.sin(5*Math.exp(-2))+Math.cos(5*Math.exp(-2))+Math.sqrt(5*Math.exp(-2)))/7)
+         };
+         for (int i = 0; i < commands.length; i++) {
+            ArrayList<String> cmds = new ArrayList<String>();
+            for (int j = 0; j < commands[i].length; j++) {
+               cmds.add(commands[i][j]);
+            }
+            varTests.put(cmds, results[i]);
+         }
       }
 
       public interface BinaryOperation {
