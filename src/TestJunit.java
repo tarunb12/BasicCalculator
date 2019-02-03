@@ -2,29 +2,30 @@ import org.junit.Test;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CharStreams.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import java.util.Map;
+import java.util.LinkedHashMap;
+
 public class TestJunit {
 
-   private static final String NL = "\n";
-   private static final String TAB = "    ";
    private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
    private final PrintStream originalOut = System.out;
 
-   public void setOutStream() {
-      System.setOut(new PrintStream(outContent));
-   }
+   public static final String LTAB = "      ";
+   public static final String STAB = "   ";
+   public static final String ANSI_GREEN =  "\u001B[32m";
+   public static final String ANSI_RED = "\u001B[31m";
+   public static final String ANSI_LOW = "\u001B[2m";
+   public static final String ANSI_RESET = "\u001B[0m";
+   public static final Tests tests = new Tests();
 
-   public void resetOutStream() {
-      System.setOut(originalOut);
-   }
-
-   public void antlrTest(String exp) throws Exception {
+   public void antlr(String exp) throws Exception {
       // create a CharStream that reads from test input
       CharStream input = CharStreams.fromString(exp);
       // create a lexer that feeds off of given input
@@ -32,25 +33,118 @@ public class TestJunit {
       // create a buffer of tokens pulled from the lexer
       CommonTokenStream tokens = new CommonTokenStream(lexer);
       GrammarParser parser = new GrammarParser(tokens);
-      setOutStream();
       ParseTree tree = parser.prog(); // begin parsing at prog rule
    }
 
-   @Test
-   public void testAddSubMultDiv() {
-      System.out.println(NL + "Addition, Subtraction, Multiplicationm and Division Tests:");
-      String exp1 = "2+3*8-7/7";
-      String exp1Result = "25.0";
+   public void setOutStream() {
+      System.setOut(new PrintStream(outContent));
+   }
+
+   public void resetOutStream() {
+      outContent.reset();
+      System.setOut(originalOut);
+   }
+
+   public void antlrTest(String testExp, String testRes) {
       try {
-         antlrTest(exp1);
-         String testExp1 = outContent.toString();
+         setOutStream();
+         antlr(testExp);
+         String testExpRes = outContent.toString().replace("\n", "").replace("\r", "");
          resetOutStream();
-         Assert.assertEquals(exp1Result + NL, testExp1);
-         System.out.println(TAB + exp1.trim() + "=" + exp1Result + " - passed \u2713");
+         Assert.assertEquals(testRes, testExpRes);
+         System.out.println(LTAB + ANSI_GREEN + "\u2713 " + ANSI_RESET + ANSI_LOW + testExp.trim() + "=" + testRes + ANSI_RESET);
+      }
+      catch (AssertionError e) {
+         System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + testExp.trim() + "=" + testRes + ANSI_RESET);
       }
       catch (Exception e) {
-         Assert.fail(TAB + exp1.trim() + "=" + exp1Result + " - failed \u2717");
+         System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + "Parser failed on the input " + testExp);
       }
-      System.out.print(NL);
+   }
+
+   @Test
+   public void testBoolOps() {
+      System.out.println(STAB + "Boolean Tests:");
+
+      tests.setBooleanTests();
+      Map<String, String> testResults = tests.booleanTests;
+
+      for (Map.Entry<String, String> test : testResults.entrySet()) {
+         antlrTest(test.getKey(), test.getValue());
+      }
+      System.out.println("");
+   }
+
+   @Test
+   public void testFunctionOps() {
+      System.out.println(STAB + "Function Tests:");
+
+      tests.setFunctionTests();
+      Map<String, String> testResults = tests.functionTests;
+      
+      for (Map.Entry<String, String> test : testResults.entrySet()) {
+         antlrTest(test.getKey(), test.getValue());
+      }
+      System.out.println("");
+   }
+
+   @Test
+   public void testMathOps() {
+      System.out.println(STAB + "Mathematical Tests:");
+
+      tests.setAddSubMultDivPowTests();
+      Map<String, String> testResults = tests.mathTests;
+
+      for (Map.Entry<String, String> test : testResults.entrySet()) {
+         antlrTest(test.getKey(), test.getValue());
+      }
+      System.out.println("");
+   }
+
+   public static class Tests {
+      public Map<String, String> mathTests;
+      public Map<String, String> booleanTests;
+      public Map<String, String> functionTests;
+      public Map<String, String> varTests;
+
+      public void setAddSubMultDivPowTests() {
+         mathTests = new LinkedHashMap<String, String>();
+         mathTests.put("2+3*8-7/7", Double.toString(2+3*8-7/7));
+         mathTests.put("-2-(-(-4+(-14/7)*(-6/-1.5))-4*(-2)-5)+2", Double.toString(-2-(12-4*(-2)-5)+2));
+         mathTests.put("4*(-1.0/3+1.0/5-1.0/7+1.0/9-1.0/11+1.0/13)", Double.toString(4*(-1.0/3+1.0/5-1.0/7+1.0/9-1.0/11+1.0/13)));
+         mathTests.put("1+1+1.0/2+1.0/(1*2*3)+1.0/(1*2*3*4)+1.0/(1*2*3*4*5)", Double.toString(1+1+1.0/2+1.0/(1*2*3)+1.0/(1*2*3*4)+1.0/(1*2*3*4*5)));
+         mathTests.put("-5.32-472+8.3*10*(12/7.2)^4", Double.toString(-5.32-472+8.3*10*Math.pow(12/7.2, 4)));
+         mathTests.put("1.0/1^2+1.0/2^2+1.0/3^2+1.0/4^2+1.0/5^2", Double.toString(1.0/Math.pow(1,2)+1.0/Math.pow(2,2)+1.0/Math.pow(3,2)+1.0/Math.pow(4,2)+1.0/Math.pow(5,2)));
+         mathTests.put("(1+(1.0/(2^52)))^(2^52)", Double.toString(Math.pow(1+1.0/Math.pow(2,52),Math.pow(2,52))));
+      }
+
+      public void setBooleanTests() {
+         BinaryOperation and = (a, b) -> a != 0.0 && b != 0.0 ? 1.0 : 0.0;
+         BinaryOperation or = (a, b) -> a != 0.0 || b != 0.0 ? 1.0 : 0.0;
+         UnaryOperation not = a -> a == 0 ? 1.0 : 0.0;
+         booleanTests = new LinkedHashMap<String, String>();
+         booleanTests.put("2&&4", Double.toString(and.compute(2, 4)));
+         booleanTests.put("2||4", Double.toString(or.compute(2, 4)));
+         booleanTests.put("!2||!4", Double.toString(or.compute(not.compute(2), not.compute(4))));
+         booleanTests.put("!3&&4.24||2&&!0", Double.toString(or.compute(and.compute(not.compute(3), 4.24), and.compute(2, not.compute(0)))));
+      }
+
+      public void setFunctionTests() {
+         functionTests = new LinkedHashMap<String, String>();
+         functionTests.put("(s(3.141592653589))^2+(c(3.141592653589))^2", Double.toString(Math.pow(Math.sin(3.141592653589), 2) + Math.pow(Math.cos(3.141592653589), 2)));
+         functionTests.put("s(3.141592653589/2)/c(3.141592653589/2)", Double.toString(Math.sin(3.141592653589/2)/Math.cos(3.141592653589/2)));
+      }
+
+      public void setVarTests() {
+         
+      }
+
+      public interface BinaryOperation {
+         double compute(double a, double b);
+      }
+
+      public interface UnaryOperation {
+         double compute(double a);
+      }
    }
 }

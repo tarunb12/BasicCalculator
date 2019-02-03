@@ -67,17 +67,17 @@ expr returns [double result]
     | sin LPAR expr RPAR        { $result = Math.sin($expr.result); }
     | cos LPAR expr RPAR        { $result = Math.cos($expr.result); }
     | left=expr POW right=expr	{ $result = Math.pow($left.result, $right.result); }
+    | NOT expr					{ $result = $expr.result == 0.0 ? 1.0 : 0.0; }
     | left=expr AND right=expr	{ $result = $left.result != 0.0 && $right.result != 0 ? 1.0 : 0.0; }
     | left=expr OR right=expr	{ $result = $left.result != 0.0 || $right.result != 0 ? 1.0 : 0.0; }
-    | NOT expr					{ $result = $expr.result != 0.0 ? 1.0 : 0.0; }
+    | SUBT expr                 { $result = -1 * $expr.result; }
     | left=expr MULT right=expr	{ $result = $left.result * $right.result; }
     | left=expr DIV right=expr	{ $result = $left.result / $right.result; }
-    | left=expr ADD right=expr	{ $result = $left.result + $right.result; }
     | left=expr SUBT right=expr	{ $result = $left.result - $right.result; }
-    | SUBT expr                 { $result = -1 * $expr.result; }
+    | left=expr ADD right=expr	{ $result = $left.result + $right.result; }
 	| num				        { $result = Double.parseDouble($num.text); }
     | var=VAR					{ $result = (varDefs.containsKey($var.text) ? varDefs.get($var.text) : 0); }
+    | LPAR expr RPAR            { $result = $expr.result; }
     | read LPAR RPAR            { $result = 0.0; readMode = true; varDefs.put("read()", 0.0); }
-	| LPAR expr RPAR            { $result = $expr.result; }
     ;
 
