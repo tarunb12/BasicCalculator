@@ -1,10 +1,11 @@
 # COP4020 Basic Calculator Antlr4 Implementaion #
-Note: Only tested with JDK8, antlr 4.7.2, and JUNIT 4.12.
+*Note*: Only tested with JDK8, antlr 4.7.2, and JUNIT 4.12.
 ## To Compile Parser and Tests: ##
 ```console
 $ cd src
 $ antlr4 Grammar.g4
-$ javac Grammar*.java Test*.java
+$ javac Grammar*.java `to compile antlr generated grammar`
+        Test*.java    `to compile my testing code`
 ```
 ## File Input ##
 ```console
@@ -20,3 +21,4 @@ After the lexer/parser files are generated and java tests/grammar classes are co
 ```console
 $ java TestRunner
 ```
+Note that these are my own tests that I have implemented in java. To test files/input, use grun.
