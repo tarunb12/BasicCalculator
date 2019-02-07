@@ -4,8 +4,7 @@
 ```console
 $ cd src
 $ antlr4 Grammar.g4
-$ javac Grammar*.java `to compile antlr generated grammar`
-        Test*.java    `to compile my testing code`
+$ javac Grammar*.java Test*.java
 ```
 ## File Input ##
 ```console
@@ -21,4 +20,4 @@ After the lexer/parser files are generated and java tests/grammar classes are co
 ```console
 $ java TestRunner
 ```
-Note that these are my own tests that I have implemented in java. To test files/input, use grun.
+Note that these are my own tests that I have implemented in java. To test local files/input, use the grun Grammar command.
