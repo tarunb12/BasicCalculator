@@ -6,9 +6,11 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CharStreams.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.ByteArrayOutputStream;
 
+import java.lang.Exception;
+import java.lang.AssertionError;
 import java.lang.FunctionalInterface;
 
 import java.util.Map;
@@ -189,8 +191,8 @@ public class TestJunit {
          functionTests.put("s(3.141592653589/2)/c(3.141592653589/2)", Double.toString(Math.sin(3.141592653589/2)/Math.cos(3.141592653589/2)));
          functionTests.put("l(e(read()+1))/l(e(read()))\n1", Double.toString(Math.log10(Math.exp(1+1))/Math.log10(Math.exp(1))));
          functionTests.put("sqrt(2)^(sqrt(2)^(sqrt(2)))", Double.toString(Math.pow(Math.sqrt(2),Math.pow(Math.sqrt(2),Math.sqrt(2)))));
-         functionTests.put("l(e(e(1)))/l(e(1))", Double.toString(Math.log10(Math.exp(Math.exp(1)))/Math.log10(Math.exp(1))));
          functionTests.put("read()*8+7^read()\n2", Double.toString(2*8+Math.pow(7, 2)));
+         functionTests.put("l(e(e(1)))/l(e(1))", Double.toString(Math.log10(Math.exp(Math.exp(1)))/Math.log10(Math.exp(1))));
       }
 
       public void setVarTests() {
@@ -245,6 +247,7 @@ public class TestJunit {
          printTests = new LinkedHashMap<String, String>();
          printTests.put("print 2*8, 4+7^2, e(1)+1", Double.toString(2.0*8)+", "+Double.toString(4.0+Math.pow(7, 2))+", "+Double.toString(Math.exp(1)+1));
          printTests.put("print \"hello\", 4+l(100), e(e(2))", "hello, "+Double.toString(4+Math.log10(100))+", "+Double.toString(Math.exp(Math.exp(2))));
+         printTests.put("print \"test\", \"4^4\", 4^4, e(1)", "test, 4^4, "+Double.toString(Math.pow(4, 4))+", "+Double.toString(Math.exp(1)));
       }
 
       @FunctionalInterface

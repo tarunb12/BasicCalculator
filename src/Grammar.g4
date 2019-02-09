@@ -44,13 +44,13 @@ grammar Grammar ;
     }
 }
 
-prog: NL*? stat ( NL stat )* NL*? ;
+prog: NL*? stat ( NL*? stat )* NL*? ;
 
 stat
-    : expression
+    : printStatement
+    | expression
     | varDef
-    | comment
-    | printStatement
+    | COMMENT
     ;
 
 expression
@@ -65,16 +65,16 @@ varDef
     | VAR EQ readExpr                       { varDefs.put($VAR.text, $readExpr.result); }
 	;
 
-comment
-    : LCOM txt RCOM
+COMMENT
+    : LCOM (.)*? RCOM -> channel(HIDDEN)
     ;
 
 printStatement
-    : print statement[true]
+    : print statement[true] { System.out.println(""); }
     ;
 
 statement[boolean first] returns [String output]
-    : quote txt { $output = $txt.text; if ($first) System.out.print($txt.text); else System.out.print(", " + $txt.text); } quote (',' stm=statement[false])* 
+    : QUOTE txt { $output = $txt.text; if ($first) System.out.print($txt.text); else System.out.print(", " + $txt.text); } QUOTE (',' stm=statement[false])* 
     | expr { $output = Double.toString($expr.result); if ($first) System.out.print(Double.toString($expr.result)); else System.out.print(", " + Double.toString($expr.result)); } (',' stm=statement[false])*
     | readExpr { $output = Double.toString($readExpr.result); if ($first) System.out.print(Double.toString($readExpr.result)); else System.out.print(", " + Double.toString($readExpr.result)); } (',' stm=statement[false])*
     ;
@@ -146,7 +146,7 @@ sin : 's' ;
 cos : 'c' ;
 
 print: 'print' ;
-quote: '"' ;
+QUOTE: '"' ;
 txt  : (.)*? ;
 
 NOT : '!' ;
