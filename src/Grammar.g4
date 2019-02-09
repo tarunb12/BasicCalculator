@@ -53,9 +53,9 @@ stat
     | printStatement
     ;
 
-expression returns []
-    : readExpr NL expr                      { if ($readExpr.text.contains("read()")) { System.out.println(readInExpr($readExpr.text, $expr.text)); } else { System.out.println($readExpr.result); System.out.println($expr.result); } }
-    | expr                                  { System.out.println($expr.result); }
+expression
+    : expr                                  { System.out.println($expr.result); }
+    | readExpr NL expr                      { if ($readExpr.text.contains("read()")) { System.out.println(readInExpr($readExpr.text, $expr.text)); } else { System.out.println($readExpr.result); System.out.println($expr.result); } }
     | readExpr                              { System.out.println($readExpr.result); }
     ;
 
@@ -70,9 +70,13 @@ comment
     ;
 
 printStatement
-    : print quote txt quote                 { System.out.println($txt.text); }
-    | print expr                            { System.out.println($expr.result); }
-    | print readExpr                        { System.out.println($readExpr.result); }
+    : print statement[true]
+    ;
+
+statement[boolean first] returns [String output]
+    : quote txt { $output = $txt.text; if ($first) System.out.print($txt.text); else System.out.print(", " + $txt.text); } quote (',' stm=statement[false])* 
+    | expr { $output = Double.toString($expr.result); if ($first) System.out.print(Double.toString($expr.result)); else System.out.print(", " + Double.toString($expr.result)); } (',' stm=statement[false])*
+    | readExpr { $output = Double.toString($readExpr.result); if ($first) System.out.print(Double.toString($readExpr.result)); else System.out.print(", " + Double.toString($readExpr.result)); } (',' stm=statement[false])*
     ;
 
 num 
@@ -101,7 +105,8 @@ expr returns [double result]
     ;
 
 readExpr returns [double result]
-    : exp LPAR readExpr RPAR                { $result = Math.exp($readExpr.result); }
+    : SUBT readExpr                         { $result = -1 * $readExpr.result; }
+    | exp LPAR readExpr RPAR                { $result = Math.exp($readExpr.result); }
     | log LPAR readExpr RPAR                { $result = Math.log10($readExpr.result); }
     | sin LPAR readExpr RPAR                { $result = Math.sin($readExpr.result); }
     | cos LPAR readExpr RPAR                { $result = Math.cos($readExpr.result); }
@@ -110,7 +115,6 @@ readExpr returns [double result]
     | NOT readExpr					        { $result = $readExpr.result == 0.0 ? 1.0 : 0.0; }
     | left=readExpr AND right=readExpr	    { $result = $left.result != 0.0 && $right.result != 0 ? 1.0 : 0.0; }
     | left=readExpr OR right=readExpr	    { $result = $left.result != 0.0 || $right.result != 0 ? 1.0 : 0.0; }
-    | SUBT readExpr                         { $result = -1 * $readExpr.result; }
     | left=readExpr MULT right=readExpr	    { $result = $left.result * $right.result; }
     | left=readExpr DIV right=readExpr	    { $result = $left.result / $right.result; }
     | left=readExpr SUBT right=readExpr	    { $result = $left.result - $right.result; }

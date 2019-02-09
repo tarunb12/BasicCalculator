@@ -56,10 +56,10 @@ public class TestJunit {
          testExpRes = outContent.toString().replace("\n", "").replace("\r", "");
          resetOutStream();
          Assert.assertEquals(testRes, testExpRes);
-         System.out.println(LTAB + ANSI_GREEN + "\u2713 " + ANSI_RESET + ANSI_LOW + testExp.trim().replace("\n", "  ") + "=" + testRes + ANSI_RESET);
+         System.out.println(LTAB + ANSI_GREEN + "\u2713 " + ANSI_RESET + ANSI_LOW + testExp.trim().replace("\n", "  ") + " = " + testRes + ANSI_RESET);
       }
       catch (AssertionError e) {
-         System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + testExp.trim().replace("\n", "  ") + "=" + testRes + "  (Got \"" + testExpRes + "\")" + ANSI_RESET);
+         System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + testExp.trim().replace("\n", "  ") + " = " + testRes + "  (Got \"" + testExpRes + "\")" + ANSI_RESET);
       }
       catch (Exception e) {
          System.out.println(LTAB + ANSI_RED + "\u2717 " + ANSI_RESET + ANSI_LOW + "Parser failed on the input " + testExp);
@@ -139,12 +139,25 @@ public class TestJunit {
       System.out.println("");
    }
 
+   @Test
+   public void testPrint() {
+      System.out.println(STAB + "Print Tests:");
+
+      tests.setPrintTests();
+      Map<String, String> testResults = tests.printTests;
+      for (Map.Entry<String, String> test : testResults.entrySet()) {
+         antlrTest(test.getKey(), test.getValue());
+      }
+      System.out.println("");
+   }
+
    public static class Tests {
       public Map<String, String> mathTests;
       public Map<String, String> booleanTests;
       public Map<String, String> functionTests;
       public Map<ArrayList<String>, String> varTests;
       public Map<ArrayList<String>, String> commentTests;
+      public Map<String, String> printTests;
 
       public void setAddSubMultDivPowTests() {
          mathTests = new LinkedHashMap<String, String>();
@@ -174,9 +187,10 @@ public class TestJunit {
          functionTests = new LinkedHashMap<String, String>();
          functionTests.put("(s(3.141592653589))^2+(c(3.141592653589))^2", Double.toString(Math.pow(Math.sin(3.141592653589),2)+Math.pow(Math.cos(3.141592653589),2)));
          functionTests.put("s(3.141592653589/2)/c(3.141592653589/2)", Double.toString(Math.sin(3.141592653589/2)/Math.cos(3.141592653589/2)));
-         functionTests.put("l(e(2))/l(e(1))", Double.toString(Math.log10(Math.exp(2))/Math.log10(Math.exp(1))));
+         functionTests.put("l(e(read()+1))/l(e(read()))\n1", Double.toString(Math.log10(Math.exp(1+1))/Math.log10(Math.exp(1))));
          functionTests.put("sqrt(2)^(sqrt(2)^(sqrt(2)))", Double.toString(Math.pow(Math.sqrt(2),Math.pow(Math.sqrt(2),Math.sqrt(2)))));
          functionTests.put("l(e(e(1)))/l(e(1))", Double.toString(Math.log10(Math.exp(Math.exp(1)))/Math.log10(Math.exp(1))));
+         functionTests.put("read()*8+7^read()\n2", Double.toString(2*8+Math.pow(7, 2)));
       }
 
       public void setVarTests() {
@@ -225,6 +239,12 @@ public class TestJunit {
             }
             commentTests.put(cmds, results[i]);
          }
+      }
+
+      public void setPrintTests() {
+         printTests = new LinkedHashMap<String, String>();
+         printTests.put("print 2*8, 4+7^2, e(1)+1", Double.toString(2.0*8)+", "+Double.toString(4.0+Math.pow(7, 2))+", "+Double.toString(Math.exp(1)+1));
+         printTests.put("print \"hello\", 4+l(100), e(e(2))", "hello, "+Double.toString(4+Math.log10(100))+", "+Double.toString(Math.exp(Math.exp(2))));
       }
 
       @FunctionalInterface
